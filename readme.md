@@ -1,1 +1,1 @@
-temporary readme file for first repor commit will update later
+temporary readme file for first repo commit will update later
