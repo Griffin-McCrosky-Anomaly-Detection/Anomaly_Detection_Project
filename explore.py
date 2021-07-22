@@ -20,6 +20,13 @@ from sklearn.preprocessing import MinMaxScaler
 
 
 def prep(df, user):
+    '''
+    This function is designed to take the dataframe built from our acquire function
+    and convert the date column to date time and also set is as the index. 
+    
+    The function will then create a pages dataframe by resampling the endpoint column
+    with a daily count.
+    '''
     df = df[df.user_id == user]
     df.date = pd.to_datetime(df.date)
     df = df.set_index(df.date)
@@ -27,6 +34,13 @@ def prep(df, user):
     return pages
 
 def compute_pct_b(pages, span, weight, user):
+    '''
+    This function is designed to compute a b percentage column in a dataframe using 
+    the upper and lower band.
+    
+    This will help us look for anamolies because any points that lie outside the upper
+    or lower bands are considered anamolies.
+    '''
     midband = pages.ewm(span=span).mean()
     stdev = pages.ewm(span=span).std()
     ub = midband + stdev*weight
@@ -39,6 +53,14 @@ def compute_pct_b(pages, span, weight, user):
     return my_df
 
 def plt_bands(my_df, user):
+    '''
+    This function is designed to create a lineplot showing the 
+    Upper Band
+    Lower Band
+    Exponential Moving Average
+    
+    For comparison.
+    '''
     fig, ax = plt.subplots(figsize=(12,8))
     ax.plot(my_df.index, my_df.pages, label='Number of Pages, User: '+str(user))
     ax.plot(my_df.index, my_df.midband, label = 'EMA/midband')
@@ -49,6 +71,13 @@ def plt_bands(my_df, user):
     plt.show()
 
 def find_anomalies(df, user, span, weight):
+    '''
+    This function is designed to look for anamolies.
+    
+    It uses the compute_pct_b function to compute a b percentage and returns a dataframe 
+    with occurences greater than 1 putting them outside the upper and lower bands making
+    them anamolies.
+    '''
     pages = prep(df, user)
     my_df = compute_pct_b(pages, span, weight, user)
     # plt_bands(my_df, user)
